@@ -107,5 +107,5 @@ func main() {
   - [x] Including embeds.
   - [x] Including attachments.
 - [x] Message builders.
-- [ ] Editing existing webhook messages.
+- [x] Editing/Deleting existing webhook messages.
 - [ ] Deleting the webhook.

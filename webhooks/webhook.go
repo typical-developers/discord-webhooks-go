@@ -96,6 +96,90 @@ func (w *WebhookClient) Send(args *WebhookPayload) (response *WebhookPayloadResp
 	return response, nil
 }
 
+func (w *WebhookClient) Edit(messageId string, args *WebhookPayload) (response *WebhookPayloadResponse, err error) {
+	err = w.validatePayload(args)
+	if err != nil {
+		return nil, err
+	}
+
+	requestUrl := w.BaseURL
+	requestUrl.Path = requestUrl.Path + "/messages/" + messageId
+
+	query := requestUrl.Query()
+	query.Add("wait", "true")
+	requestUrl.RawQuery = query.Encode()
+
+	var r goaxios.GoAxios
+	if args.Files != nil {
+		var files []goaxios.FormFile
+
+		for _, file := range args.Files {
+			files = append(files, goaxios.FormFile{
+				Key:    file.Name,
+				Name:   file.Name,
+				Handle: file.Reader,
+			})
+		}
+
+		payload := new(bytes.Buffer)
+		err = json.NewEncoder(payload).Encode(args)
+		if err != nil {
+			return nil, err
+		}
+
+		r = goaxios.GoAxios{
+			Method: "PATCH",
+			Url:    requestUrl.String(),
+			Form: &goaxios.Form{
+				Files: files,
+				Data: []goaxios.FormData{
+					{
+						Key:   "payload_json",
+						Value: payload.String(),
+					},
+				},
+			},
+		}
+	} else {
+		r = goaxios.GoAxios{
+			Method: "PATCH",
+			Url:    requestUrl.String(),
+			Body:   args,
+		}
+	}
+
+	r.ResponseStruct = &WebhookPayloadResponse{}
+
+	res := r.RunRest()
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	response, ok := res.Body.(*WebhookPayloadResponse)
+	if !ok {
+		return nil, fmt.Errorf("An invalid WebhookPayloadResponse was returned.")
+	}
+
+	return response, nil
+}
+
+func (w *WebhookClient) Delete(messageId string) (err error) {
+	requestUrl := w.BaseURL
+	requestUrl.Path = requestUrl.Path + "/messages/" + messageId
+
+	r := goaxios.GoAxios{
+		Method: "DELETE",
+		Url:    requestUrl.String(),
+	}
+
+	res := r.RunRest()
+	if res.Error != nil {
+		return res.Error
+	}
+
+	return nil
+}
+
 func (client *WebhookClient) validatePayload(args *WebhookPayload) error {
 	var content string
 	var attachments []DiscordAttachments
