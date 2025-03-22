@@ -66,11 +66,17 @@ type DiscordEmbedGenericMedia struct {
 }
 
 type DiscordEmbedImage struct {
-	DiscordEmbedGenericMedia
+	URL      *string `json:"url,omitempty"`
+	ProxyURL *string `json:"proxy_url,omitempty"`
+	Height   *int    `json:"height,omitempty"`
+	Width    *int    `json:"width,omitempty"`
 }
 
 type DiscordEmbedThumbnail struct {
-	DiscordEmbedGenericMedia
+	URL      *string `json:"url,omitempty"`
+	ProxyURL *string `json:"proxy_url,omitempty"`
+	Height   *int    `json:"height,omitempty"`
+	Width    *int    `json:"width,omitempty"`
 }
 
 type DiscordEmbedAuthor struct {

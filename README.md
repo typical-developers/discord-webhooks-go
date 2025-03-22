@@ -75,6 +75,6 @@ func main() {
 - [x] Sending basic messages.
   - [x] Including embeds.
   - [x] Including attachments.
-- [ ] Message builders.
+- [x] Message builders.
 - [ ] Editing existing webhook messages.
 - [ ] Deleting the webhook.
