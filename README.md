@@ -1,8 +1,8 @@
 # Discord Webhooks
 A module to handle sending messages to Discord webhooks in Golang.
 
-# Example Usage
-## Sending a Message
+## Example Usage
+### Sending a Message
 ```go
 package main
 
@@ -30,7 +30,7 @@ func main() {
 }
 ```
 
-## Attaching a File
+### Attaching a File
 ```go
 package main
 
@@ -69,7 +69,7 @@ func main() {
 }
 ```
 
-# In-Progress Features
+## In-Progress Features
 - [x] Building the client with a URL or the client id and secret.
 - [x] Setting a default user profile for the webhook client (username and avatar).
 - [x] Sending basic messages.
