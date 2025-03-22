@@ -9,18 +9,14 @@ package main
 import "github.com/typical-developers/discord-webhooks-go"
 
 func main() {
-    clientId := "YOUR_CLIENT_ID"
-    secret := "YOUR_CLIENT_SECRET"
-
-    webhook := webhooks.NewWebhook(webhooks.NewWebhookArgs{
-        ClientID: &clientId,
-        Secret:   &secret,
-    })
+	webhook := webhooks.NewWebhookClient("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET")
+    // Alternatively, you can use a webhook URL:
+       // webhook := webhooks.NewWebhookClientFromURL("https://discord.com/api/webhooks/YOUR_CLIENT_ID/YOUR_CLIENT_SECRET")
 
     payload := webhooks.WebhookPayload{}
     payload.SetContent("Hello, world!")
 
-    err := webhook.Send(&payload)
+    err := webhook.SendMessage(&payload)
     if err != nil {
         println(err.Error())
     }
@@ -34,13 +30,9 @@ package main
 import "github.com/typical-developers/discord-webhooks-go"
 
 func main() {
-    clientId := "YOUR_CLIENT_ID"
-    secret := "YOUR_CLIENT_SECRET"
-
-    webhook := webhooks.NewWebhook(webhooks.NewWebhookArgs{
-        ClientID: &clientId,
-        Secret:   &secret,
-    })
+	webhook := webhooks.NewWebhookClient("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET")
+    // Alternatively, you can use a webhook URL:
+       // webhook := webhooks.NewWebhookClientFromURL("https://discord.com/api/webhooks/YOUR_CLIENT_ID/YOUR_CLIENT_SECRET")
 
     payload := webhooks.WebhookPayload{}
     payload.SetContent("Hello, world!")
@@ -60,7 +52,7 @@ func main() {
     customFieldTwo.SetValue("This is another custom field.")
     customFieldTwo.SetInline(true)
 
-    err := webhook.Send(&payload)
+    err := webhook.SendMessage(&payload)
     if err != nil {
         println(err.Error())
     }
@@ -74,13 +66,9 @@ package main
 import "github.com/typical-developers/discord-webhooks-go"
 
 func main() {
-    clientId := "YOUR_CLIENT_ID"
-    secret := "YOUR_CLIENT_SECRET"
-
-    webhook := webhooks.NewWebhook(webhooks.NewWebhookArgs{
-        ClientID: &clientId,
-        Secret:   &secret,
-    })
+	webhook := webhooks.NewWebhookClient("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET")
+    // Alternatively, you can use a webhook URL:
+       // webhook := webhooks.NewWebhookClientFromURL("https://discord.com/api/webhooks/YOUR_CLIENT_ID/YOUR_CLIENT_SECRET")
 
     payload := webhooks.WebhookPayload{}
     payload.SetContent("Hello, world!")
@@ -93,7 +81,7 @@ func main() {
 
     payload.AddAttachment("example.txt", file)
 
-    err := webhook.Send(&payload)
+    err := webhook.SendMessage(&payload)
     if err != nil {
         println(err.Error())
     }
@@ -108,4 +96,4 @@ func main() {
   - [x] Including attachments.
 - [x] Message builders.
 - [x] Editing/Deleting existing webhook messages.
-- [ ] Deleting the webhook.
+- [x] Deleting the webhook.
