@@ -1,6 +1,9 @@
 package webhooks
 
-import "io"
+import (
+	"io"
+	"time"
+)
 
 func (p *WebhookPayload) SetContent(content string) {
 	p.Content = &content
@@ -43,8 +46,9 @@ func (e *DiscordEmbed) SetURL(url string) {
 	e.URL = &url
 }
 
-func (e *DiscordEmbed) SetTimestamp(timestamp string) {
-	e.Timestamp = &timestamp
+func (e *DiscordEmbed) SetTimestamp(timestamp time.Time) {
+	formatTimestamp := timestamp.Format(time.RFC3339)
+	e.Timestamp = &formatTimestamp
 }
 
 func (e *DiscordEmbed) SetColor(color int) {
