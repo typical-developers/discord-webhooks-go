@@ -40,6 +40,38 @@ type WebhookPayload struct {
 	Files           []*WebhookFile          `json:"-"`
 }
 
+type WebhookPayloadResponse struct {
+	Type            int                   `json:"type"`
+	Content         string                `json:"content"`
+	Mentions        []string              `json:"mentions"`
+	MentionRoles    []string              `json:"mention_roles"`
+	Attachments     []DiscordAttachments  `json:"attachments"`
+	Embeds          []DiscordEmbed        `json:"embeds"`
+	Timestamp       string                `json:"timestamp"`
+	EditedTimestamp *string               `json:"edited_timestamp"`
+	Flags           int                   `json:"flags"`
+	Components      []any                 `json:"components"` // TODO: Figure out the type of this
+	MessageID       string                `json:"id"`
+	ChannelID       string                `json:"channel_id"`
+	Author          *DiscordMessageAuthor `json:"author"`
+	Pinned          bool                  `json:"pinned"`
+	MentionEveryone bool                  `json:"mention_everyone"`
+	TTS             bool                  `json:"tts"`
+	WebhookID       string                `json:"webhook_id"`
+}
+
+type DiscordMessageAuthor struct {
+	UserID        string  `json:"id"`
+	Username      string  `json:"username"`
+	Avatar        *string `json:"avatar"`
+	Discriminator string  `json:"discriminator"`
+	PublicFlags   int     `json:"public_flags"`
+	Bot           bool    `json:"bot"`
+	GlobalName    *string `json:"global_name"`
+	Clan          *string `json:"clan"`
+	PrimaryGuild  *string `json:"primary_guild"`
+}
+
 type DiscordEmbed struct {
 	Title       *string                `json:"title,omitempty"`
 	Description *string                `json:"description,omitempty"`

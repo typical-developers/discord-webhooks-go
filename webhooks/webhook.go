@@ -15,6 +15,10 @@ func NewWebhook(args NewWebhookArgs) *WebhookClient {
 	if args.URL != nil {
 		parsedUrl, err := url.Parse(*args.URL)
 
+		query := parsedUrl.Query()
+		query.Add("wait", "true")
+		parsedUrl.RawQuery = query.Encode()
+
 		if err != nil {
 			panic(err)
 		}
@@ -30,13 +34,14 @@ func NewWebhook(args NewWebhookArgs) *WebhookClient {
 	}
 }
 
-func (w *WebhookClient) Send(args *WebhookPayload) error {
-	err := w.validatePayload(args)
+func (w *WebhookClient) Send(args *WebhookPayload) (response *WebhookPayloadResponse, err error) {
+	err = w.validatePayload(args)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	var r goaxios.GoAxios
+
 	if args.Files != nil {
 		var files []goaxios.FormFile
 
@@ -51,7 +56,7 @@ func (w *WebhookClient) Send(args *WebhookPayload) error {
 		payload := new(bytes.Buffer)
 		err = json.NewEncoder(payload).Encode(args)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		r = goaxios.GoAxios{
@@ -75,12 +80,19 @@ func (w *WebhookClient) Send(args *WebhookPayload) error {
 		}
 	}
 
+	r.ResponseStruct = &WebhookPayloadResponse{}
+
 	res := r.RunRest()
 	if res.Error != nil {
-		return res.Error
+		return nil, res.Error
 	}
 
-	return nil
+	response, ok := res.Body.(*WebhookPayloadResponse)
+	if !ok {
+		return nil, fmt.Errorf("An invalid WebhookPayloadResponse was returned.")
+	}
+
+	return response, nil
 }
 
 func (client *WebhookClient) validatePayload(args *WebhookPayload) error {
@@ -149,6 +161,10 @@ func createWebhookURL(clientId string, token string) string {
 		Host:   "discord.com",
 		Path:   "/api/webhooks/" + clientId + "/" + token,
 	}
+
+	query := url.Query()
+	query.Add("wait", "true")
+	url.RawQuery = query.Encode()
 
 	return url.String()
 }
