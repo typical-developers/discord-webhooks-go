@@ -16,7 +16,7 @@ func main() {
     payload := webhooks.WebhookPayload{}
     payload.SetContent("Hello, world!")
 
-    err := webhook.SendMessage(&payload)
+    _, err := webhook.SendMessage(&payload)
     if err != nil {
         println(err.Error())
     }
@@ -52,7 +52,7 @@ func main() {
     customFieldTwo.SetValue("This is another custom field.")
     customFieldTwo.SetInline(true)
 
-    err := webhook.SendMessage(&payload)
+    _, err := webhook.SendMessage(&payload)
     if err != nil {
         println(err.Error())
     }
@@ -81,7 +81,7 @@ func main() {
 
     payload.AddAttachment("example.txt", file)
 
-    err := webhook.SendMessage(&payload)
+    _, err := webhook.SendMessage(&payload)
     if err != nil {
         println(err.Error())
     }
