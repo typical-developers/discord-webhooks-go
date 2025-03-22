@@ -2,6 +2,7 @@ package webhooks
 
 import (
 	"io"
+	"net/url"
 )
 
 type NewWebhookArgs struct {
@@ -12,7 +13,7 @@ type NewWebhookArgs struct {
 }
 
 type WebhookClient struct {
-	URL      string
+	BaseURL  url.URL
 	UserInfo *WebhookUserInfo
 }
 

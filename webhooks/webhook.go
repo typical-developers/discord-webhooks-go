@@ -10,26 +10,23 @@ import (
 )
 
 func NewWebhook(args NewWebhookArgs) *WebhookClient {
-	var webhookUrl string
+	var webhookUrl *url.URL
 
 	if args.URL != nil {
 		parsedUrl, err := url.Parse(*args.URL)
-
-		query := parsedUrl.Query()
-		query.Add("wait", "true")
-		parsedUrl.RawQuery = query.Encode()
 
 		if err != nil {
 			panic(err)
 		}
 
-		webhookUrl = parsedUrl.String()
+		webhookUrl = parsedUrl
 	} else {
-		webhookUrl = createWebhookURL(*args.ClientID, *args.Secret)
+		parsedUrl := createWebhookURL(*args.ClientID, *args.Secret)
+		webhookUrl = &parsedUrl
 	}
 
 	return &WebhookClient{
-		URL:      webhookUrl,
+		BaseURL:  *webhookUrl,
 		UserInfo: args.UserInfo,
 	}
 }
@@ -40,8 +37,12 @@ func (w *WebhookClient) Send(args *WebhookPayload) (response *WebhookPayloadResp
 		return nil, err
 	}
 
-	var r goaxios.GoAxios
+	requestUrl := w.BaseURL
+	query := requestUrl.Query()
+	query.Add("wait", "true")
+	requestUrl.RawQuery = query.Encode()
 
+	var r goaxios.GoAxios
 	if args.Files != nil {
 		var files []goaxios.FormFile
 
@@ -61,7 +62,7 @@ func (w *WebhookClient) Send(args *WebhookPayload) (response *WebhookPayloadResp
 
 		r = goaxios.GoAxios{
 			Method: "POST",
-			Url:    w.URL,
+			Url:    requestUrl.String(),
 			Form: &goaxios.Form{
 				Files: files,
 				Data: []goaxios.FormData{
@@ -75,7 +76,7 @@ func (w *WebhookClient) Send(args *WebhookPayload) (response *WebhookPayloadResp
 	} else {
 		r = goaxios.GoAxios{
 			Method: "POST",
-			Url:    w.URL,
+			Url:    requestUrl.String(),
 			Body:   args,
 		}
 	}
@@ -155,7 +156,7 @@ func validateEmbed(embed DiscordEmbed, index int) error {
 	return nil
 }
 
-func createWebhookURL(clientId string, token string) string {
+func createWebhookURL(clientId string, token string) url.URL {
 	url := url.URL{
 		Scheme: "https",
 		Host:   "discord.com",
@@ -166,5 +167,5 @@ func createWebhookURL(clientId string, token string) string {
 	query.Add("wait", "true")
 	url.RawQuery = query.Encode()
 
-	return url.String()
+	return url
 }
