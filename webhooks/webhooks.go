@@ -7,6 +7,7 @@ import (
 	"github.com/opensaucerer/goaxios"
 )
 
+// Create a new WebhookClient using a clientId and secret.
 func NewWebhookClient(clientId string, secret string) *WebhookClient {
 	return &WebhookClient{
 		BaseURL: url.URL{
@@ -18,6 +19,7 @@ func NewWebhookClient(clientId string, secret string) *WebhookClient {
 	}
 }
 
+// Create a new WebhookClient using the direct webhook url.
 func NewWebhookClientFromURL(webhookUrl string) *WebhookClient {
 	parsedUrl, err := url.Parse(webhookUrl)
 
@@ -31,14 +33,23 @@ func NewWebhookClientFromURL(webhookUrl string) *WebhookClient {
 	}
 }
 
+// Set a default username for the webhook.
+// This prevents you from having to provide it in WebhookPayload.Username constantly.
+//
+// If you provide WebhookPayload.Username, this value will be ignored.
 func (c *WebhookClient) SetDefaultUsername(username string) {
 	c.DefaultUserInfo.Username = &username
 }
 
+// Set a default avatar url for the webhook.
+// This prevents you from having to provide it in WebhookPayload.AvatarURL constantly.
+//
+// If you provide WebhookPayload.AvatarURL, this value will be ignored.
 func (c *WebhookClient) SetDefaultAvatarURL(avatarUrl string) {
 	c.DefaultUserInfo.AvatarURL = &avatarUrl
 }
 
+// Delete the webhook.
 func (c *WebhookClient) DeleteWebhook() (bool, error) {
 	request := goaxios.GoAxios{
 		Method: "DELETE",
@@ -53,6 +64,7 @@ func (c *WebhookClient) DeleteWebhook() (bool, error) {
 	return true, nil
 }
 
+// Send a message from the webhook.
 func (w *WebhookClient) SendMessage(args *WebhookPayload) (response *WebhookPayloadResponse, err error) {
 	err = w.validatePayload(args)
 	if err != nil {
@@ -99,6 +111,7 @@ func (w *WebhookClient) SendMessage(args *WebhookPayload) (response *WebhookPayl
 	return response, nil
 }
 
+// Edit an existing message that the webhook has sent.
 func (w *WebhookClient) EditMessage(messageId string, args *WebhookPayload) (response *WebhookPayloadResponse, err error) {
 	err = w.validatePayload(args)
 	if err != nil {
@@ -147,6 +160,7 @@ func (w *WebhookClient) EditMessage(messageId string, args *WebhookPayload) (res
 	return response, nil
 }
 
+// Delete an existing message that the webhook has sent.
 func (w *WebhookClient) DeleteMessage(messageId string) (err error) {
 	requestUrl := w.BaseURL
 	requestUrl.Path = requestUrl.Path + "/messages/" + messageId

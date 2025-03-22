@@ -20,6 +20,8 @@ type WebhookClient struct {
 	DefaultUserInfo *WebhookUserInfo
 }
 
+// Make sure that the WebhookPayload is valid.
+// This should help prevent the request from erroring out due to an invalid request body.
 func (client *WebhookClient) validatePayload(args *WebhookPayload) error {
 	var content string
 	var attachments []DiscordAttachments
@@ -97,6 +99,9 @@ type WebhookPayload struct {
 	Files           []*WebhookFile          `json:"-"`
 }
 
+// If there are Files attached to the payload, the form data has to be parsed.
+//
+// Under the hood, this uses goaxios to parse the form data automatically.
 func (args *WebhookPayload) parseFormData() (*goaxios.Form, error) {
 	var files []goaxios.FormFile
 
@@ -170,6 +175,9 @@ type DiscordEmbed struct {
 	Fields      []*DiscordEmbedField   `json:"fields,omitempty"`
 }
 
+// Validate the structure of the Discord embed based on documentation.
+//
+// https://discord.com/developers/docs/resources/message#embed-object
 func (e DiscordEmbed) validateEmbed(index int) error {
 	if len(e.Fields) > 25 {
 		return fmt.Errorf("DiscordEmbed[%d] has too many fields", index)
