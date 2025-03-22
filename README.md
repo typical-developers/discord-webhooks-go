@@ -17,11 +17,8 @@ func main() {
         Secret:   &secret,
     })
 
-    content := "Hello, world!"
-
-    payload := webhooks.WebhookPayload{
-        Content: &content,
-    }
+    payload := webhooks.WebhookPayload{}
+    payload.SetContent("Hello, world!")
 
     err := webhook.Send(&payload)
     if err != nil {
@@ -30,7 +27,7 @@ func main() {
 }
 ```
 
-### Attaching a File
+### Sending a Message (with embeds)
 ```go
 package main
 
@@ -45,22 +42,56 @@ func main() {
         Secret:   &secret,
     })
 
-    content := "Hello, world!"
+    payload := webhooks.WebhookPayload{}
+    payload.SetContent("Hello, world!")
+
+    embed := payload.AddEmbed()
+    embed.SetTitle("Hello, world!")
+    embed.SetDescription("This is a test embed.")
+    embed.SetTimestamp(time.Now())
+
+    customFieldOne := embed.AddField()
+    customFieldOne.SetName("Custom Field 1")
+    customFieldOne.SetValue("This is a custom field.")
+    customFieldOne.SetInline(true)
+
+    customFieldTwo := embed.AddField()
+    customFieldTwo.SetName("Custom Field 2")
+    customFieldTwo.SetValue("This is another custom field.")
+    customFieldTwo.SetInline(true)
+
+    err := webhook.Send(&payload)
+    if err != nil {
+        println(err.Error())
+    }
+}
+```
+
+### Sending a Message (with attachments)
+```go
+package main
+
+import "github.com/typical-developers/discord-webhooks-go"
+
+func main() {
+    clientId := "YOUR_CLIENT_ID"
+    secret := "YOUR_CLIENT_SECRET"
+
+    webhook := webhooks.NewWebhook(webhooks.NewWebhookArgs{
+        ClientID: &clientId,
+        Secret:   &secret,
+    })
+
+    payload := webhooks.WebhookPayload{}
+    payload.SetContent("Hello, world!")
+
     file, err := os.Open("./example.txt")
     if err != nil {
         panic(err)
     }
     defer file.Close()
 
-    payload := webhooks.WebhookPayload{
-        Content: &content,
-        Files: []*webhooks.WebhookFile{
-            {
-                Name:   "example.txt",
-                Reader: file,
-            },
-        },
-    }
+    payload.AddAttachment("example.txt", file)
 
     err := webhook.Send(&payload)
     if err != nil {
