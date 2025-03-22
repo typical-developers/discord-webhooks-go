@@ -13,9 +13,9 @@ func main() {
     secret := "YOUR_CLIENT_SECRET"
 
     webhook := webhooks.NewWebhook(webhooks.NewWebhookArgs{
-		ClientID: &clientId,
-		Secret:   &secret,
-	})
+        ClientID: &clientId,
+        Secret:   &secret,
+    })
 
     content := "Hello, world!"
 
@@ -41,9 +41,9 @@ func main() {
     secret := "YOUR_CLIENT_SECRET"
 
     webhook := webhooks.NewWebhook(webhooks.NewWebhookArgs{
-		ClientID: &clientId,
-		Secret:   &secret,
-	})
+        ClientID: &clientId,
+        Secret:   &secret,
+    })
 
     content := "Hello, world!"
     file, err := os.Open("./example.txt")
