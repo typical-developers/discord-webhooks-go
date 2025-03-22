@@ -9,7 +9,7 @@ package main
 import "github.com/typical-developers/discord-webhooks-go"
 
 func main() {
-	webhook := webhooks.NewWebhookClient("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET")
+    webhook := webhooks.NewWebhookClient("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET")
     // Alternatively, you can use a webhook URL:
        // webhook := webhooks.NewWebhookClientFromURL("https://discord.com/api/webhooks/YOUR_CLIENT_ID/YOUR_CLIENT_SECRET")
 
@@ -30,7 +30,7 @@ package main
 import "github.com/typical-developers/discord-webhooks-go"
 
 func main() {
-	webhook := webhooks.NewWebhookClient("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET")
+    webhook := webhooks.NewWebhookClient("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET")
     // Alternatively, you can use a webhook URL:
        // webhook := webhooks.NewWebhookClientFromURL("https://discord.com/api/webhooks/YOUR_CLIENT_ID/YOUR_CLIENT_SECRET")
 
@@ -66,7 +66,7 @@ package main
 import "github.com/typical-developers/discord-webhooks-go"
 
 func main() {
-	webhook := webhooks.NewWebhookClient("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET")
+    webhook := webhooks.NewWebhookClient("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET")
     // Alternatively, you can use a webhook URL:
        // webhook := webhooks.NewWebhookClientFromURL("https://discord.com/api/webhooks/YOUR_CLIENT_ID/YOUR_CLIENT_SECRET")
 
