@@ -105,7 +105,7 @@ func main() {
 ```
 
 ## Waiting for Response
-Adding a `wait=true` query parameter will allow you to wait for the webhook to send and the server to acknowledge it. This will return a `WebhookMessage`, which adds methods that allow you manage the message.
+Adding a `wait=true` query parameter will allow you to wait for the webhook to send and the server to acknowledge it. This will return a `WebhookMessage`, which adds methods that allow you manage the message. You must ensure that the returned message is not nil before attempting to call any of the methods associated with it. `204 No Content` can result in a nil message.
 
 ```go
 package main
@@ -136,11 +136,13 @@ func main() {
         panic(err)
     }
 
-    message, _, err := message.Edit(ctx,
-        webhooks.EditMessagePayload{
-            Content: "Hello World, but edited!!",
-        },
-        nil,
-    )
+    if message != nil {
+        _, _, err := message.Edit(ctx,
+            webhooks.EditMessagePayload{
+                Content: "Hello World, but edited!!",
+            },
+            nil,
+        )
+    }
 }
 ```
