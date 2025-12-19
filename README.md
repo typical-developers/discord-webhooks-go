@@ -1,99 +1,148 @@
 # Discord Webhooks
-A module to handle sending messages to Discord webhooks in Golang.
+Send messages to webhooks on Discord. If you do not want to use discordgo specifically for webhooks, this is a lightweight library that will allow you to send them.
 
-## Example Usage
-### Sending a Message
+## Initalizing a Webhook Client
+The library has two ways of initializing a webhook client. Unlike discordgo, you can also initalize a webhook client from its URL and not just from its ID and Secret.
+
+### ID + Secret
 ```go
 package main
 
-import "github.com/typical-developers/discord-webhooks-go"
+import (
+    webhooks "github.com/typical-developers/discord-webhooks-go"
+)
 
 func main() {
-    webhook := webhooks.NewWebhookClient("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET")
-    // Alternatively, you can use a webhook URL:
-       // webhook := webhooks.NewWebhookClientFromURL("https://discord.com/api/webhooks/YOUR_CLIENT_ID/YOUR_CLIENT_SECRET")
+    id := "0"
+    secret := "0"
+    client := webhooks.NewWebhookClient(id, secret)
+}
+```
 
-    payload := webhooks.WebhookPayload{}
-    payload.SetContent("Hello, world!")
+### URL
+```go
+package main
 
-    _, err := webhook.SendMessage(&payload)
+import (
+    webhooks "github.com/typical-developers/discord-webhooks-go"
+)
+
+func main() {
+    url := "https://discord.com/api/webhooks/0/0"
+    client := webhooks.NewWebhookClientFromURL(url)
+}
+```
+
+## Executing Webhooks
+Messages can be sent through webhooks using the `Execute` method on the client.
+
+### Sending Messages
+```go
+package main
+
+import (
+    "context"
+
+    webhooks "github.com/typical-developers/discord-webhooks-go"
+)
+
+func main() {
+    ctx := context.Background()
+
+    url := "https://discord.com/api/webhooks/0/0"
+    client := webhooks.NewWebhookClientFromURL(url)
+
+    _, _, err := client.Execute(ctx,
+        webhooks.MessagePayload{
+            Content: "Hello World!",
+        },
+        nil,
+    )
     if err != nil {
-        println(err.Error())
+        panic(err)
     }
 }
 ```
 
-### Sending a Message (with embeds)
+### Sending Messages with Files
 ```go
 package main
 
-import "github.com/typical-developers/discord-webhooks-go"
+import (
+    "context"
+
+    webhooks "github.com/typical-developers/discord-webhooks-go"
+)
 
 func main() {
-    webhook := webhooks.NewWebhookClient("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET")
-    // Alternatively, you can use a webhook URL:
-       // webhook := webhooks.NewWebhookClientFromURL("https://discord.com/api/webhooks/YOUR_CLIENT_ID/YOUR_CLIENT_SECRET")
+    ctx := context.Background()
 
-    payload := webhooks.WebhookPayload{}
-    payload.SetContent("Hello, world!")
+    url := "https://discord.com/api/webhooks/0/0"
+    client := webhooks.NewWebhookClientFromURL(url)
 
-    embed := payload.AddEmbed()
-    embed.SetTitle("Hello, world!")
-    embed.SetDescription("This is a test embed.")
-    embed.SetTimestamp(time.Now())
-
-    customFieldOne := embed.AddField()
-    customFieldOne.SetName("Custom Field 1")
-    customFieldOne.SetValue("This is a custom field.")
-    customFieldOne.SetInline(true)
-
-    customFieldTwo := embed.AddField()
-    customFieldTwo.SetName("Custom Field 2")
-    customFieldTwo.SetValue("This is another custom field.")
-    customFieldTwo.SetInline(true)
-
-    _, err := webhook.SendMessage(&payload)
-    if err != nil {
-        println(err.Error())
-    }
-}
-```
-
-### Sending a Message (with attachments)
-```go
-package main
-
-import "github.com/typical-developers/discord-webhooks-go"
-
-func main() {
-    webhook := webhooks.NewWebhookClient("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET")
-    // Alternatively, you can use a webhook URL:
-       // webhook := webhooks.NewWebhookClientFromURL("https://discord.com/api/webhooks/YOUR_CLIENT_ID/YOUR_CLIENT_SECRET")
-
-    payload := webhooks.WebhookPayload{}
-    payload.SetContent("Hello, world!")
-
-    file, err := os.Open("./example.txt")
+	file, err := os.Open("file.png")
     if err != nil {
         panic(err)
     }
     defer file.Close()
 
-    payload.AddAttachment("example.txt", file)
-
-    _, err := webhook.SendMessage(&payload)
+    _, _, err := client.Execute(ctx,
+        webhooks.MessagePayload{
+            Content: "Hello World!",
+            Files: []webhooks.WebhookFile{
+                webhooks.WebhookFile{
+                    FileName: file.Name(),
+                    Reader:   file,
+                },
+            },
+        },
+        nil,
+    )
     if err != nil {
-        println(err.Error())
+        panic(err)
     }
 }
 ```
 
-## In-Progress Features
-- [x] Building the client with a URL or the client id and secret.
-- [x] Setting a default user profile for the webhook client (username and avatar).
-- [x] Sending basic messages.
-  - [x] Including embeds.
-  - [x] Including attachments.
-- [x] Message builders.
-- [x] Editing/Deleting existing webhook messages.
-- [x] Deleting the webhook.
+## Waiting for Response
+Adding a `wait=true` query parameter will allow you to wait for the webhook to send and the server to acknowledge it. This will return a `WebhookMessage`, which adds methods that allow you manage the message. You must ensure that the returned message is not nil before attempting to call any of the methods associated with it. `204 No Content` can result in a nil message.
+
+```go
+package main
+
+import (
+    "context"
+	"net/url"
+
+    webhooks "github.com/typical-developers/discord-webhooks-go"
+)
+
+func main() {
+    ctx := context.Background()
+
+    u := "https://discord.com/api/webhooks/0/0"
+    client := webhooks.NewWebhookClientFromURL(u)
+
+    query := url.Values{}
+    query.Set("wait", "true")
+
+    message, _, err := client.Execute(ctx,
+        webhooks.MessagePayload{
+            Content: "Hello World!",
+        },
+        &query,
+    )
+    if err != nil {
+        panic(err)
+    }
+
+    if message != nil {
+        _, _, err := message.Edit(ctx,
+            webhooks.EditMessagePayload{
+                Content: "Hello World, but edited!!",
+            },
+            nil,
+        )
+    }
+}
+```
