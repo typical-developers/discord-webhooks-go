@@ -114,6 +114,62 @@ func (c *WebhookClient) Do(ctx context.Context, req *Request) (*http.Response, e
 	return c.client.Do(req.Request)
 }
 
+// Get will get the current webhook info.
+func (c *WebhookClient) Get(ctx context.Context) (*Webhook, *http.Response, error) {
+	url := c.webhookUrl.String()
+
+	req, err := c.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	res, err := c.Do(ctx, req)
+	if err != nil {
+		return nil, res, err
+	}
+
+	webhook := new(Webhook)
+	if err := json.NewDecoder(res.Body).Decode(webhook); err != nil {
+		return nil, res, err
+	}
+
+	return webhook, res, nil
+}
+
+// Modify will modify the current webhook and return its new info.
+func (c *WebhookClient) Modify(ctx context.Context, content ModifyWebhook) (*Webhook, *http.Response, error) {
+	url := c.webhookUrl.String()
+
+	req, err := c.NewRequest("PATCH", url, content)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	res, err := c.Do(ctx, req)
+	if err != nil {
+		return nil, res, err
+	}
+
+	webhook := new(Webhook)
+	if err := json.NewDecoder(res.Body).Decode(webhook); err != nil {
+		return nil, res, err
+	}
+
+	return webhook, res, nil
+}
+
+// Delete will delete the current webhook.
+func (c *WebhookClient) Delete(ctx context.Context) (*http.Response, error) {
+	url := c.webhookUrl.String()
+
+	req, err := c.NewRequest("DELETE", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.Do(ctx, req)
+}
+
 // Execute will execute the webhook with the provided message and params.
 func (c *WebhookClient) Execute(ctx context.Context, content MessagePayload, params *url.Values) (*WebhookMessage, *http.Response, error) {
 	var request *Request

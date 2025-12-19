@@ -5,6 +5,22 @@ import (
 	"io"
 )
 
+type Webhook struct {
+	ID            string  `json:"id"`
+	Type          int     `json:"type"`
+	GuildID       *string `json:"guild_id"`
+	ChannelID     string  `json:"channel_id"`
+	Name          string  `json:"name"`
+	Avatar        string  `json:"avatar"`
+	ApplicationID *string `json:"application_id"`
+}
+
+type ModifyWebhook struct {
+	Name      string `json:"name,omitempty"`
+	Avatar    string `json:"avatar,omitempty"`
+	ChannelID string `json:"channel_id,omitempty"`
+}
+
 type WebhookFile struct {
 	FileName string
 	Reader   io.Reader
