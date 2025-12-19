@@ -46,8 +46,8 @@ func NewWebhookClientFromURL(webhookUrl string) *WebhookClient {
 }
 
 // NewRequest will create a new Request using the webhook url and provided parameters.
-func (c *WebhookClient) NewRequest(method string, body any) (*Request, error) {
-	req, err := http.NewRequest(method, c.webhookUrl.String(), nil)
+func (c *WebhookClient) NewRequest(method, url string, body any) (*Request, error) {
+	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (c *WebhookClient) NewRequest(method string, body any) (*Request, error) {
 }
 
 // NewMultipartRequest will create a new Request using the webhook url and provided parameters.
-func (c *WebhookClient) NewMultipartRequest(method string, fields map[string]any) (*Request, error) {
+func (c *WebhookClient) NewMultipartRequest(method, url string, fields map[string]any) (*Request, error) {
 	var body bytes.Buffer
 	writer := multipart.NewWriter(&body)
 
@@ -100,7 +100,7 @@ func (c *WebhookClient) NewMultipartRequest(method string, fields map[string]any
 		return nil, err
 	}
 
-	req, err := http.NewRequest(method, c.webhookUrl.String(), &body)
+	req, err := http.NewRequest(method, url, &body)
 	if err != nil {
 		return nil, err
 	}
@@ -114,16 +114,16 @@ func (c *WebhookClient) Do(ctx context.Context, req *Request) (*http.Response, e
 	return c.client.Do(req.Request)
 }
 
-type ExecuteParams struct {
-	Wait           bool   `url:"wait,omitempty"`
-	ThreadID       string `url:"thread_id,omitempty"`
-	WithComponents bool   `url:"with_components,omitempty"`
-}
-
 // Execute will execute the webhook with the provided message and params.
-func (c *WebhookClient) Execute(ctx context.Context, content MessagePayload, params *ExecuteParams) (*http.Response, error) {
+func (c *WebhookClient) Execute(ctx context.Context, content MessagePayload, params *url.Values) (*WebhookMessage, *http.Response, error) {
 	var request *Request
 
+	u := c.webhookUrl
+	if params != nil {
+		u.RawQuery = params.Encode()
+	}
+
+	url := u.String()
 	if len(content.Files) > 0 {
 		payload := make(map[string]any)
 		payload["payload_json"] = content.PayloadJSON()
@@ -132,20 +132,87 @@ func (c *WebhookClient) Execute(ctx context.Context, content MessagePayload, par
 			payload[key] = file
 		}
 
-		req, err := c.NewMultipartRequest(http.MethodPost, payload)
+		req, err := c.NewMultipartRequest(http.MethodPost, url, payload)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		request = req
 	} else {
-		req, err := c.NewRequest(http.MethodPost, content)
+		req, err := c.NewRequest(http.MethodPost, url, content)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		request = req
 	}
 
-	return c.Do(ctx, request)
+	res, err := c.Do(ctx, request)
+	if err != nil {
+		return nil, res, err
+	}
+
+	// 204 No Content = Wait query was not provided, no WebhookMessage should be returned.
+	if res.StatusCode == http.StatusNoContent {
+		return nil, res, nil
+	}
+
+	message := new(WebhookMessage)
+	message.c = c
+
+	if err := json.NewDecoder(res.Body).Decode(message); err != nil {
+		return nil, res, err
+	}
+
+	return message, res, nil
+}
+
+func (c *WebhookClient) EditMessage(ctx context.Context, messageID string, content EditMessagePayload, params *url.Values) (*WebhookMessage, *http.Response, error) {
+	var request *Request
+
+	u := c.webhookUrl.
+		JoinPath("messages").
+		JoinPath(messageID)
+	if params != nil {
+		u.RawQuery = params.Encode()
+	}
+
+	url := u.String()
+	if len(content.Files) > 0 {
+		payload := make(map[string]any)
+
+		payload["payload_json"] = content.PayloadJSON()
+		for i, file := range content.Files {
+			key := fmt.Sprintf("files[%d]", i)
+			payload[key] = file
+		}
+
+		req, err := c.NewMultipartRequest(http.MethodPatch, url, payload)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		request = req
+	} else {
+		req, err := c.NewRequest(http.MethodPatch, url, content)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		request = req
+	}
+
+	res, err := c.Do(ctx, request)
+	if err != nil {
+		return nil, res, err
+	}
+
+	message := new(WebhookMessage)
+	message.c = c
+
+	if err := json.NewDecoder(res.Body).Decode(message); err != nil {
+		return nil, res, err
+	}
+
+	return message, res, nil
 }

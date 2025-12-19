@@ -117,3 +117,19 @@ func (p *MessagePayload) PayloadJSON() string {
 	json, _ := json.Marshal(p)
 	return string(json)
 }
+
+type EditMessagePayload struct {
+	Content         string          `json:"content,omitempty"`
+	Embeds          []Embed         `json:"embeds,omitempty"`
+	Flags           MessageFlag     `json:"flags,omitempty"`
+	AllowedMentions AllowedMentions `json:"allowed_mentions,omitempty"`
+	// Components      []interface{}   `json:"components,omitempty"` -- TODO: Add support for components
+
+	Files []WebhookFile `json:"-"`
+}
+
+// PayloadJSON will return JSON encoded of non-file params
+func (p *EditMessagePayload) PayloadJSON() string {
+	json, _ := json.Marshal(p)
+	return string(json)
+}
