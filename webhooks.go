@@ -167,6 +167,38 @@ func (c *WebhookClient) Execute(ctx context.Context, content MessagePayload, par
 	return message, res, nil
 }
 
+// GetMessage will get the message that a webhook has sent.
+func (c *WebhookClient) GetMessage(ctx context.Context, messageID string, params *url.Values) (*WebhookMessage, *http.Response, error) {
+	u := c.webhookUrl.
+		JoinPath("messages").
+		JoinPath(messageID)
+
+	if params != nil {
+		u.RawQuery = params.Encode()
+	}
+
+	url := u.String()
+	req, err := c.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	res, err := c.Do(ctx, req)
+	if err != nil {
+		return nil, res, err
+	}
+
+	message := new(WebhookMessage)
+	message.c = c
+
+	if err := json.NewDecoder(res.Body).Decode(message); err != nil {
+		return nil, res, err
+	}
+
+	return message, res, nil
+}
+
+// EditMessage will edit the message that a webhook has sent.
 func (c *WebhookClient) EditMessage(ctx context.Context, messageID string, content EditMessagePayload, params *url.Values) (*WebhookMessage, *http.Response, error) {
 	var request *Request
 
@@ -215,4 +247,23 @@ func (c *WebhookClient) EditMessage(ctx context.Context, messageID string, conte
 	}
 
 	return message, res, nil
+}
+
+// DeleteMessage will delete the message that a webhook has sent.
+func (c *WebhookClient) DeleteMessage(ctx context.Context, messageID string, params *url.Values) (*http.Response, error) {
+	u := c.webhookUrl.
+		JoinPath("messages").
+		JoinPath(messageID)
+
+	if params != nil {
+		u.RawQuery = params.Encode()
+	}
+
+	url := u.String()
+	req, err := c.NewRequest("DELETE", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.Do(ctx, req)
 }

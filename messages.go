@@ -31,6 +31,12 @@ type WebhookMessage struct {
 	c *WebhookClient
 }
 
+// Edit will edit the current message.
 func (m *WebhookMessage) Edit(ctx context.Context, message EditMessagePayload, params *url.Values) (*WebhookMessage, *http.Response, error) {
 	return m.c.EditMessage(ctx, m.ID, message, params)
+}
+
+// Delete will delete the current message.
+func (m *WebhookMessage) Delete(ctx context.Context, params *url.Values) (*http.Response, error) {
+	return m.c.DeleteMessage(ctx, m.ID, params)
 }
