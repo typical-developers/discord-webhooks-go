@@ -28,7 +28,7 @@ type WebhookFile struct {
 
 type EmbedFooter struct {
 	Text         string `json:"text,omitempty"`
-	IoncURL      string `json:"icon_url,omitempty"`
+	IconURL      string `json:"icon_url,omitempty"`
 	ProxyIconURL string `json:"proxy_icon_url,omitempty"`
 }
 
