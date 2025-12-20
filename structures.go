@@ -57,15 +57,15 @@ type EmbedField struct {
 type Embed struct {
 	Title string `json:"title,omitempty"`
 	// Type        string      `json:"type,omitempty"` -- Always rich for Webhooks, field not necessary.
-	Description string         `json:"description,omitempty"`
-	URL         string         `json:"url,omitempty"`
-	Timestamp   string         `json:"timestamp,omitempty"`
-	Color       int            `json:"color,omitempty"`
-	Footer      EmbedFooter    `json:"footer,omitempty"`
-	Image       EmbedImage     `json:"image,omitempty"`
-	Thumbnail   EmbedThumbnail `json:"thumbnail,omitempty"`
-	Author      EmbedAuthor    `json:"author,omitempty"`
-	Fields      []EmbedField   `json:"fields,omitempty"`
+	Description string          `json:"description,omitempty"`
+	URL         string          `json:"url,omitempty"`
+	Timestamp   string          `json:"timestamp,omitempty"`
+	Color       int             `json:"color,omitempty"`
+	Footer      *EmbedFooter    `json:"footer,omitempty"`
+	Image       *EmbedImage     `json:"image,omitempty"`
+	Thumbnail   *EmbedThumbnail `json:"thumbnail,omitempty"`
+	Author      *EmbedAuthor    `json:"author,omitempty"`
+	Fields      []EmbedField    `json:"fields,omitempty"`
 }
 
 type AllowedMentionsParse string
@@ -107,22 +107,22 @@ type PollAnswer struct {
 }
 
 type Poll struct {
-	Question         PollQuestion `json:"question,omitempty"`
-	Answers          []PollAnswer `json:"answers,omitempty"`
-	Expiry           string       `json:"expiry,omitempty"`
-	AllowMultiselect bool         `json:"allow_multiselect,omitempty"`
+	Question         *PollQuestion `json:"question,omitempty"`
+	Answers          []PollAnswer  `json:"answers,omitempty"`
+	Expiry           string        `json:"expiry,omitempty"`
+	AllowMultiselect bool          `json:"allow_multiselect,omitempty"`
 }
 
 type MessagePayload struct {
-	Content         string          `json:"content,omitempty"`
-	Username        string          `json:"username,omitempty"`
-	AvatarURL       string          `json:"avatar_url,omitempty"`
-	TTS             bool            `json:"tts,omitempty"`
-	Embeds          []Embed         `json:"embeds,omitempty"`
-	AllowedMentions AllowedMentions `json:"allowed_mentions,omitempty"`
-	Flags           MessageFlag     `json:"flags,omitempty"`
-	ThreadName      string          `json:"thread_name,omitempty"`
-	AppliedTags     []string        `json:"applied_tags,omitempty"`
+	Content         string           `json:"content,omitempty"`
+	Username        string           `json:"username,omitempty"`
+	AvatarURL       string           `json:"avatar_url,omitempty"`
+	TTS             bool             `json:"tts,omitempty"`
+	Embeds          []Embed          `json:"embeds,omitempty"`
+	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
+	Flags           *MessageFlag     `json:"flags,omitempty"`
+	ThreadName      string           `json:"thread_name,omitempty"`
+	AppliedTags     []string         `json:"applied_tags,omitempty"`
 	// Components      []interface{}   `json:"components,omitempty"` -- TODO: Add support for components
 
 	Files []WebhookFile `json:"-"`
@@ -135,10 +135,10 @@ func (p *MessagePayload) PayloadJSON() string {
 }
 
 type EditMessagePayload struct {
-	Content         string          `json:"content,omitempty"`
-	Embeds          []Embed         `json:"embeds,omitempty"`
-	Flags           MessageFlag     `json:"flags,omitempty"`
-	AllowedMentions AllowedMentions `json:"allowed_mentions,omitempty"`
+	Content         string           `json:"content,omitempty"`
+	Embeds          []Embed          `json:"embeds,omitempty"`
+	Flags           *MessageFlag     `json:"flags,omitempty"`
+	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
 	// Components      []interface{}   `json:"components,omitempty"` -- TODO: Add support for components
 
 	Files []WebhookFile `json:"-"`
