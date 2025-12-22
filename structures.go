@@ -123,7 +123,7 @@ type MessagePayload struct {
 	Flags           *MessageFlag     `json:"flags,omitempty"`
 	ThreadName      string           `json:"thread_name,omitempty"`
 	AppliedTags     []string         `json:"applied_tags,omitempty"`
-	// Components      []interface{}   `json:"components,omitempty"` -- TODO: Add support for components
+	Components      []Component      `json:"components,omitempty"`
 
 	Files []WebhookFile `json:"-"`
 }
@@ -139,7 +139,7 @@ type EditMessagePayload struct {
 	Embeds          []Embed          `json:"embeds,omitempty"`
 	Flags           *MessageFlag     `json:"flags,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
-	// Components      []interface{}   `json:"components,omitempty"` -- TODO: Add support for components
+	Components      []Component      `json:"components,omitempty"`
 
 	Files []WebhookFile `json:"-"`
 }
